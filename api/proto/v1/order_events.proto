@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "event-market/api/gen/v1/order;orderv1";
+
+// Товар в заказе
+message OrderItem {
+  string item_id = 1;
+  int32 quantity = 2;
+  double price = 3;
+}
+
+// 1. Событие: Создан новый заказ (отправляет order-service)
+message OrderCreatedEvent {
+  string order_id = 1;
+  string user_id = 2;
+  double total_amount = 3;
+  repeated OrderItem items = 4;
+  int64 created_at = 5;
+}
+
+// 2. Событие: Результат обработки платежа (отправляет payment-service)
+message PaymentProcessedEvent {
+  string order_id = 1;
+  string payment_id = 2;
+  bool success = 3;
+  string failure_reason = 4;
+}
+
+// 3. Событие: Результат бронирования на складе (отправляет inventory-service)
+message InventoryReservedEvent {
+  string order_id = 1;
+  bool success = 2;
+  string failure_reason = 3;
+}
