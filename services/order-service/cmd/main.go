@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"event-market/services/order-service/internal/handler"
 	"event-market/services/order-service/internal/producer"
 	"event-market/services/order-service/internal/repository"
+	"event-market/services/order-service/internal/consumer"
 )
 
 func mustGetEnv(key string) string {
@@ -62,6 +64,8 @@ func main() {
 	orderHandler := handler.NewOrderHandler(orderRepo, kafkaProducer)
 
 	http.HandleFunc("/api/v1/orders", corsMiddleware(orderHandler.CreateOrder))
+
+	go consumer.StartPaymentConsumer(context.Background(), db, kafkaBrokers)
 
 	log.Println("Order Service is running on port :8080...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
