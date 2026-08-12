@@ -41,7 +41,7 @@ services:
     container_name: init_kafka
     depends_on:
       - kafka
-    entrypoint: [ "/bin/sh", "-c" ]
+    entrypoint: ["/bin/sh", "-c"]
     command: >
       "
       sleep 3;
@@ -62,6 +62,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      kafka:
+        condition: service_started
+      init-kafka:
+        condition: service_completed_successfully
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    container_name: notification_service
+    environment:
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+    depends_on:
       kafka:
         condition: service_started
       init-kafka:
