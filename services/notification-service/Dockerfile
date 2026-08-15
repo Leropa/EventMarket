@@ -7,7 +7,7 @@ RUN go mod download
 COPY api/ ./api/
 COPY services/notification-service/ ./services/notification-service/
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/notification-service ./services/notification-service/cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/notification-service ./services/notification-service/cmd/notifier/main.go
 
 FROM alpine:latest
 WORKDIR /app
