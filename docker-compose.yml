@@ -75,6 +75,8 @@ services:
     container_name: notification_service
     environment:
       KAFKA_BROKERS: ${KAFKA_BROKERS}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
     depends_on:
       kafka:
         condition: service_started
