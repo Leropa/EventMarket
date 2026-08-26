@@ -1,162 +1,238 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EventMarket — Создание заказа</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { 500: '#6366f1', 600: '#4f46e5' }
-                    }
-                }
-            }
-        }
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              brand: { 500: "#6366f1", 600: "#4f46e5" },
+            },
+          },
+        },
+      };
     </script>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+  </head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
     <div class="max-w-5xl mx-auto px-4 py-8">
-        
-        <!-- Шапка -->
-        <header class="flex items-center justify-between pb-8 border-b border-slate-800 mb-8">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-500/30">EM</div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight">EventMarket Console</h1>
-                    <p class="text-xs text-slate-400">Order Service Frontend Client</p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-full text-xs">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-slate-300 font-mono">http://localhost:8080</span>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- Форма заказа -->
-            <div class="lg:col-span-7 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
-                <h2 class="text-lg font-semibold text-white mb-6 flex items-center space-x-2">
-                    <span>🛒 Оформление заказа</span>
-                </h2>
-
-                <form id="orderForm" class="space-y-6">
-                    <!-- User ID -->
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">User ID</label>
-                        <input type="text" id="userId" required
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition font-mono"
-                            value="usr_go_developer_2026">
-                    </div>
-
-                    <!-- Список товаров -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Товары в корзине</label>
-                            <button type="button" id="addItemBtn" 
-                                class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1 transition">
-                                <span>+ Добавить товар</span>
-                            </button>
-                        </div>
-
-                        <div id="itemsContainer" class="space-y-3">
-                            <!-- Рендер позиций JS -->
-                        </div>
-                    </div>
-
-                    <!-- Итоговая сумма -->
-                    <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800/80 flex justify-between items-center">
-                        <span class="text-sm text-slate-400 font-medium">Итого к оплате:</span>
-                        <span id="totalAmountDisplay" class="text-2xl font-bold font-mono text-emerald-400">$0.00</span>
-                    </div>
-
-                    <!-- Кнопка отправки -->
-                    <button type="submit" id="submitBtn"
-                        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3.5 px-4 rounded-xl transition duration-200 shadow-lg shadow-indigo-600/25 flex justify-center items-center space-x-2">
-                        <span>Отправить в Order Service (POST)</span>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Правая панель: Ответ API и Дебаг -->
-            <div class="lg:col-span-5 space-y-6">
-                
-                <!-- Статус и JSON ответ -->
-                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">Ответ сервера</h2>
-                        <span id="statusBadge" class="hidden text-xs font-mono font-semibold px-2.5 py-1 rounded-md"></span>
-                    </div>
-
-                    <div id="emptyResponse" class="py-12 text-center text-slate-500 border-2 border-dashed border-slate-800/80 rounded-xl">
-                        <p class="text-sm">Отправьте запрос, чтобы увидеть HTTP-ответ и JSON</p>
-                    </div>
-
-                    <div id="responseContent" class="hidden space-y-4">
-                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                            <div class="text-xs text-slate-500 mb-1">Сгенерированный Order ID:</div>
-                            <div id="resOrderId" class="font-mono text-sm font-bold text-indigo-400 break-all"></div>
-                        </div>
-
-                        <div>
-                            <div class="text-xs text-slate-500 mb-1">Raw JSON Response:</div>
-                            <pre id="jsonPreview" class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400 overflow-x-auto"></pre>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Подсказка про пайплайн -->
-                <div class="p-4 bg-slate-900/40 border border-slate-800/60 rounded-xl text-xs text-slate-400 space-y-2">
-                    <p class="font-semibold text-slate-300">⚡ Что происходит за кадром:</p>
-                    <ol class="list-decimal pl-4 space-y-1">
-                        <li>Запрос уходит в <code class="text-indigo-300">order_handler.go</code></li>
-                        <li>Заказ сохраняется в <b>PostgreSQL</b> (<code class="text-indigo-300">orders</code>)</li>
-                        <li>Событие сериализуется в <b>Protobuf</b></li>
-                        <li>Сообщение уходит в <b>Kafka</b> топик <code class="text-indigo-300">order.events</code></li>
-                    </ol>
-                </div>
-
-            </div>
+      <!-- Шапка -->
+      <header
+        class="flex items-center justify-between pb-8 border-b border-slate-800 mb-8"
+      >
+        <div class="flex items-center space-x-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-500/30"
+          >
+            EM
+          </div>
+          <div>
+            <h1 class="text-xl font-bold tracking-tight">
+              EventMarket Console
+            </h1>
+            <p class="text-xs text-slate-400">Order Service Frontend Client</p>
+          </div>
         </div>
+        <div
+          class="flex items-center space-x-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-full text-xs"
+        >
+          <span
+            class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"
+          ></span>
+          <span class="text-slate-300 font-mono">http://localhost:8080</span>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Форма заказа -->
+        <div
+          class="lg:col-span-7 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm"
+        >
+          <h2
+            class="text-lg font-semibold text-white mb-6 flex items-center space-x-2"
+          >
+            <span>🛒 Оформление заказа</span>
+          </h2>
+
+          <form id="orderForm" class="space-y-6">
+            <!-- User ID -->
+            <div>
+              <label
+                class="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider"
+                >User ID</label
+              >
+              <input
+                type="text"
+                id="userId"
+                required
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition font-mono"
+                value="usr_go_developer_2026"
+              />
+            </div>
+
+            <!-- Список товаров -->
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <label
+                  class="block text-xs font-medium text-slate-400 uppercase tracking-wider"
+                  >Товары в корзине</label
+                >
+                <button
+                  type="button"
+                  id="addItemBtn"
+                  class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1 transition"
+                >
+                  <span>+ Добавить товар</span>
+                </button>
+              </div>
+
+              <div id="itemsContainer" class="space-y-3">
+                <!-- Рендер позиций JS -->
+              </div>
+            </div>
+
+            <!-- Итоговая сумма -->
+            <div
+              class="p-4 bg-slate-950/80 rounded-xl border border-slate-800/80 flex justify-between items-center"
+            >
+              <span class="text-sm text-slate-400 font-medium"
+                >Итого к оплате:</span
+              >
+              <span
+                id="totalAmountDisplay"
+                class="text-2xl font-bold font-mono text-emerald-400"
+                >$0.00</span
+              >
+            </div>
+
+            <!-- Кнопка отправки -->
+            <button
+              type="submit"
+              id="submitBtn"
+              class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3.5 px-4 rounded-xl transition duration-200 shadow-lg shadow-indigo-600/25 flex justify-center items-center space-x-2"
+            >
+              <span>Отправить в Order Service (POST)</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Правая панель: Ответ API и Дебаг -->
+        <div class="lg:col-span-5 space-y-6">
+          <!-- Статус и JSON ответ -->
+          <div
+            class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl"
+          >
+            <div class="flex justify-between items-center mb-4">
+              <h2
+                class="text-sm font-semibold uppercase tracking-wider text-slate-400"
+              >
+                Ответ сервера
+              </h2>
+              <span
+                id="statusBadge"
+                class="hidden text-xs font-mono font-semibold px-2.5 py-1 rounded-md"
+              ></span>
+            </div>
+
+            <div
+              id="emptyResponse"
+              class="py-12 text-center text-slate-500 border-2 border-dashed border-slate-800/80 rounded-xl"
+            >
+              <p class="text-sm">
+                Отправьте запрос, чтобы увидеть HTTP-ответ и JSON
+              </p>
+            </div>
+
+            <div id="responseContent" class="hidden space-y-4">
+              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1">
+                  Сгенерированный Order ID:
+                </div>
+                <div
+                  id="resOrderId"
+                  class="font-mono text-sm font-bold text-indigo-400 break-all"
+                ></div>
+              </div>
+
+              <div>
+                <div class="text-xs text-slate-500 mb-1">
+                  Raw JSON Response:
+                </div>
+                <pre
+                  id="jsonPreview"
+                  class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400 overflow-x-auto"
+                ></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Подсказка про пайплайн -->
+          <div
+            class="p-4 bg-slate-900/40 border border-slate-800/60 rounded-xl text-xs text-slate-400 space-y-2"
+          >
+            <p class="font-semibold text-slate-300">
+              ⚡ Что происходит за кадром:
+            </p>
+            <ol class="list-decimal pl-4 space-y-1">
+              <li>
+                Запрос уходит в
+                <code class="text-indigo-300">order_handler.go</code>
+              </li>
+              <li>
+                Заказ сохраняется в <b>PostgreSQL</b> (<code
+                  class="text-indigo-300"
+                  >orders</code
+                >)
+              </li>
+              <li>Событие сериализуется в <b>Protobuf</b></li>
+              <li>
+                Сообщение уходит в <b>Kafka</b> топик
+                <code class="text-indigo-300">order.events</code>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        let items = [
-            { id: 1, item_id: 'ticket-go-conf-2026', quantity: 1, price: 150.00 },
-            { id: 2, item_id: 'workshop-kafka-grpc', quantity: 2, price: 75.00 }
-        ];
+      let items = [{ id: 1, item_id: "test", quantity: 13, price: 124.0 }];
 
-        const container = document.getElementById('itemsContainer');
-        const totalDisplay = document.getElementById('totalAmountDisplay');
+      const container = document.getElementById("itemsContainer");
+      const totalDisplay = document.getElementById("totalAmountDisplay");
 
-        function calculateTotal() {
-            const total = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-            totalDisplay.textContent = `$${total.toFixed(2)}`;
-            return total;
-        }
+      function calculateTotal() {
+        const total = items.reduce(
+          (sum, item) => sum + item.quantity * item.price,
+          0,
+        );
+        totalDisplay.textContent = `$${total.toFixed(2)}`;
+        return total;
+      }
 
-        function renderItems() {
-            container.innerHTML = '';
-            items.forEach((item, index) => {
-                const row = document.createElement('div');
-                row.className = 'grid grid-cols-12 gap-2 items-center bg-slate-950 p-3 rounded-xl border border-slate-800';
-                row.innerHTML = `
+      function renderItems() {
+        container.innerHTML = "";
+        items.forEach((item, index) => {
+          const row = document.createElement("div");
+          row.className =
+            "grid grid-cols-12 gap-2 items-center bg-slate-950 p-3 rounded-xl border border-slate-800";
+          row.innerHTML = `
                     <div class="col-span-5">
-                        <input type="text" placeholder="Item ID" value="${item.item_id}" 
+                        <input type="text" placeholder="Item ID" value="${item.item_id}"
                             onchange="updateItem(${index}, 'item_id', this.value)"
                             class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:border-indigo-500 focus:outline-none">
                     </div>
                     <div class="col-span-3">
-                        <input type="number" min="1" placeholder="Qty" value="${item.quantity}" 
+                        <input type="number" min="1" placeholder="Qty" value="${item.quantity}"
                             onchange="updateItem(${index}, 'quantity', parseInt(this.value) || 1)"
                             class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:border-indigo-500 focus:outline-none">
                     </div>
                     <div class="col-span-3">
-                        <input type="number" step="0.01" placeholder="Price" value="${item.price}" 
+                        <input type="number" step="0.01" placeholder="Price" value="${item.price}"
                             onchange="updateItem(${index}, 'price', parseFloat(this.value) || 0)"
                             class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:border-indigo-500 focus:outline-none">
                     </div>
@@ -164,82 +240,106 @@
                         <button type="button" onclick="removeItem(${index})" class="text-slate-500 hover:text-red-400 p-1">✕</button>
                     </div>
                 `;
-                container.appendChild(row);
-            });
-            calculateTotal();
-        }
-
-        function updateItem(index, field, value) {
-            items[index][field] = value;
-            calculateTotal();
-        }
-
-        function removeItem(index) {
-            if (items.length > 1) {
-                items.splice(index, 1);
-                renderItems();
-            }
-        }
-
-        document.getElementById('addItemBtn').addEventListener('click', () => {
-            items.push({ id: Date.now(), item_id: 'new-item-id', quantity: 1, price: 10.00 });
-            renderItems();
+          container.appendChild(row);
         });
+        calculateTotal();
+      }
 
-        // Отправка запроса на Go Backend
-        document.getElementById('orderForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            const emptyResp = document.getElementById('emptyResponse');
-            const respContent = document.getElementById('responseContent');
-            const badge = document.getElementById('statusBadge');
+      function updateItem(index, field, value) {
+        items[index][field] = value;
+        calculateTotal();
+      }
 
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span>Отправка запроса...</span>';
+      function removeItem(index) {
+        if (items.length > 1) {
+          items.splice(index, 1);
+          renderItems();
+        }
+      }
 
-            const payload = {
-                user_id: document.getElementById('userId').value,
-                items: items.map(i => ({ item_id: i.item_id, quantity: i.quantity, price: i.price }))
-            };
-
-            try {
-                const response = await fetch('http://localhost:8080/api/v1/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-
-                badge.className = `text-xs font-mono font-semibold px-2.5 py-1 rounded-md ${
-                    response.ok ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                }`;
-                badge.textContent = `HTTP ${response.status}`;
-                badge.classList.remove('hidden');
-
-                document.getElementById('resOrderId').textContent = data.order_id || 'N/A';
-                document.getElementById('jsonPreview').textContent = JSON.stringify(data, null, 2);
-
-                emptyResp.classList.add('hidden');
-                respContent.classList.remove('hidden');
-
-            } catch (err) {
-                badge.className = 'text-xs font-mono font-semibold px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20';
-                badge.textContent = 'NETWORK ERROR';
-                badge.classList.remove('hidden');
-
-                document.getElementById('resOrderId').textContent = 'Не удалось подключиться к http://localhost:8080';
-                document.getElementById('jsonPreview').textContent = 'Проверь, запущен ли order-service и включен ли CORS в Go!';
-
-                emptyResp.classList.add('hidden');
-                respContent.classList.remove('hidden');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>Отправить в Order Service (POST)</span>';
-            }
+      document.getElementById("addItemBtn").addEventListener("click", () => {
+        items.push({
+          id: Date.now(),
+          item_id: "new-item-id",
+          quantity: 1,
+          price: 10.0,
         });
-
         renderItems();
+      });
+
+      // Отправка запроса на Go Backend
+      document
+        .getElementById("orderForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const submitBtn = document.getElementById("submitBtn");
+          const emptyResp = document.getElementById("emptyResponse");
+          const respContent = document.getElementById("responseContent");
+          const badge = document.getElementById("statusBadge");
+
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = "<span>Отправка запроса...</span>";
+
+          const payload = {
+            user_id: document.getElementById("userId").value,
+            items: items.map((i) => ({
+              item_id: i.item_id,
+              quantity: i.quantity,
+              price: i.price,
+            })),
+          };
+
+          try {
+            const response = await fetch(
+              "http://localhost:8080/api/v1/orders",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              },
+            );
+
+            const data = await response.json();
+
+            badge.className = `text-xs font-mono font-semibold px-2.5 py-1 rounded-md ${
+              response.ok
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                : "bg-red-500/10 text-red-400 border border-red-500/20"
+            }`;
+            badge.textContent = `HTTP ${response.status}`;
+            badge.classList.remove("hidden");
+
+            document.getElementById("resOrderId").textContent =
+              data.order_id || "N/A";
+            document.getElementById("jsonPreview").textContent = JSON.stringify(
+              data,
+              null,
+              2,
+            );
+
+            emptyResp.classList.add("hidden");
+            respContent.classList.remove("hidden");
+          } catch (err) {
+            badge.className =
+              "text-xs font-mono font-semibold px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20";
+            badge.textContent = "NETWORK ERROR";
+            badge.classList.remove("hidden");
+
+            document.getElementById("resOrderId").textContent =
+              "Не удалось подключиться к http://localhost:8080";
+            document.getElementById("jsonPreview").textContent =
+              "Проверь, запущен ли order-service и включен ли CORS в Go!";
+
+            emptyResp.classList.add("hidden");
+            respContent.classList.remove("hidden");
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML =
+              "<span>Отправить в Order Service (POST)</span>";
+          }
+        });
+
+      renderItems();
     </script>
-</body>
+  </body>
 </html>
